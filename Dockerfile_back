@@ -1,0 +1,50 @@
+FROM golang:1.18-alpine as builder
+
+#DECLARE ENVIRONMENT VARIABLES HERE
+ARG DB_HOST
+ENV DB_HOST=${DB_HOST}
+ARG DB_PORT
+ENV DB_PORT=${DB_PORT}
+ARG DB_USER
+ENV DB_USER=${DB_USER}
+ARG DB_PASSWORD
+ENV DB_PASSWORD=${DB_PASSWORD}
+ARG DB_NAME
+ENV DB_NAME=${DB_NAME}
+ARG JWT_SECRET_KEY
+ENV JWT_SECRET_KEY=${JWT_SECRET_KEY}
+ARG JWT_SECRET_KEY_EXPIRE_MINUTES_COUNT
+ENV JWT_SECRET_KEY_EXPIRE_MINUTES_COUNT=${JWT_SECRET_KEY_EXPIRE_MINUTES_COUNT}
+ARG GO_ENV
+ENV GO_ENV=${PRODUCTION}
+RUN echo $GO_ENV
+ARG TZ
+ENV TZ=${TZ}
+ARG SPACES_KEY
+ENV SPACES_KEY=${SPACES_KEY}
+ARG SPACES_SECRET
+ENV SPACES_SECRET=${SPACES_SECRET}
+ARG SPACES_ENDPOINT
+ENV SPACES_ENDPOINT=${SPACES_ENDPOINT}
+
+WORKDIR /workspace
+COPY go.mod go.sum ./
+# Cache deps before building and copying source so that we don't need to re-download as much
+# and so that source changes don't invalidate our downloaded layer
+RUN go mod download
+# Copy the sources
+COPY . ./
+
+#Build the binary
+RUN go build -v -o bin/backend
+
+# Copy the action into a thin image
+#FROM gcr.io/distroless/static:latest
+FROM alpine
+# Install any required dependencies.
+RUN apk --no-cache add ca-certificates curl
+WORKDIR /
+
+COPY --from=builder /workspace/bin/backend /usr/local/bin/
+
+ENTRYPOINT ["backend"]

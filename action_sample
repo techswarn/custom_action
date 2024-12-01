@@ -1,0 +1,26 @@
+name: Customer Action
+author: Swarn
+description: Simple action
+inputs:
+  message:
+    description: 'message I want to print'
+    required: true
+
+outputs:
+  status:
+    description: 'deployment status'
+
+# runs:
+#   using: docker
+#   image: Dockerfile
+#   args:
+#     - --message
+#     - "${{ inputs.message }}"
+#     - --apiKey
+#     - ${{ inputs.apiKey }}
+#     - --apiKeySecret
+#     - ${{ inputs.apiKeySecret }}
+#     - --accessToken
+#     - ${{ inputs.accessToken }}
+#     - --accessTokenSecret
+#     - ${{ inputs.accessTokenSecret }}
